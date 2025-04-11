@@ -1,5 +1,6 @@
 
 import AIAssistant from "@/components/AIAssistant";
+import { motion } from 'framer-motion';
 
 const Index = () => {
   return (
