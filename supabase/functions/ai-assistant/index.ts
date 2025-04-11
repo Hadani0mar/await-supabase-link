@@ -48,8 +48,9 @@ serve(async (req) => {
     استخدم لغة واضحة ومفهومة، واحرص على إضافة هاشتاغات مناسبة عند الطلب.
     `;
     
+    // تحديث عنوان API واستخدام المسار الصحيح
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -59,12 +60,8 @@ serve(async (req) => {
           contents: [
             {
               parts: [
-                {
-                  text: systemPrompt,
-                },
-                {
-                  text: prompt,
-                },
+                { text: systemPrompt },
+                { text: prompt }
               ],
             },
           ],
