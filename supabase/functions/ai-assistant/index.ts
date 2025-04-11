@@ -26,7 +26,7 @@ serve(async (req) => {
       );
     }
 
-    const { prompt } = await req.json();
+    const { prompt, platform = "عام", contentType = "عام" } = await req.json();
     
     if (!prompt) {
       return new Response(
@@ -38,17 +38,29 @@ serve(async (req) => {
       );
     }
 
-    console.log("Processing prompt:", prompt);
+    console.log(`Processing prompt for ${platform} platform, content type: ${contentType}`);
     
     const systemPrompt = `
-    أنت مساعد متخصص في كتابة محتوى وسائل التواصل الاجتماعي باللغة العربية.
-    مهمتك هي مساعدة المستخدمين في صياغة محتوى عالي الجودة ومناسب لمختلف منصات التواصل الاجتماعي.
-    يمكنك كتابة تغريدات، منشورات فيسبوك، تعليقات انستغرام، اقتباسات، محتوى تقني، وأي محتوى آخر يطلبه المستخدم.
-    احرص على أن يكون المحتوى جذابًا، موجزًا، وملائمًا للمنصة التي سينشر فيها.
+    أنت مساعد محترف متخصص في كتابة محتوى وسائل التواصل الاجتماعي باللغة العربية.
+    مهمتك هي مساعدة المستخدمين في صياغة محتوى عالي الجودة ومناسب لمنصة ${platform}.
+    نوع المحتوى المطلوب هو: ${contentType}.
+    
+    قم بكتابة محتوى يتناسب مع خصائص المنصة المطلوبة:
+    - إذا كان المحتوى لتويتر: اجعله موجزاً ومؤثراً وأضف هاشتاغات مناسبة (لا يتجاوز 280 حرفًا إذا أمكن).
+    - إذا كان المحتوى لفيسبوك: اجعله أكثر تفاعلية مع إمكانية إضافة تفاصيل أكثر.
+    - إذا كان المحتوى لانستغرام: ركّز على الوصف المرئي واجعله جذاباً بصرياً وأضف هاشتاغات متنوعة.
+    - إذا كان المحتوى لواتساب: اجعله مباشراً وشخصياً.
+    
+    احرص على أن يكون المحتوى:
+    - أصيلاً وإبداعياً
+    - خالياً من الأخطاء اللغوية والإملائية
+    - مناسباً للجمهور المستهدف
+    - يحقق الهدف من المنشور (تثقيفي، ترفيهي، تحفيزي، تسويقي، إلخ)
+    
     استخدم لغة واضحة ومفهومة، واحرص على إضافة هاشتاغات مناسبة عند الطلب.
     `;
     
-    // تحديث عنوان API واستخدام المسار الصحيح
+    // استخدام نموذج gemini-1.5-flash مع الإعدادات الأمثل للمحتوى العربي
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -66,11 +78,30 @@ serve(async (req) => {
             },
           ],
           generationConfig: {
-            temperature: 0.7,
+            temperature: 0.8,
             topK: 40,
             topP: 0.95,
             maxOutputTokens: 1024,
+            stopSequences: [],
           },
+          safetySettings: [
+            {
+              category: "HARM_CATEGORY_HATE_SPEECH",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+              category: "HARM_CATEGORY_HARASSMENT",
+              threshold: "BLOCK_MEDIUM_AND_ABOVE"
+            }
+          ]
         }),
       }
     );
@@ -80,6 +111,11 @@ serve(async (req) => {
 
     // Extract the response text from the Gemini API response
     let responseText = "";
+    let stats = {
+      characters: 0,
+      words: 0,
+      estimatedReadTime: "0 ثوانٍ"
+    };
     
     try {
       if (data.candidates && data.candidates.length > 0 && 
@@ -87,6 +123,14 @@ serve(async (req) => {
           data.candidates[0].content.parts && 
           data.candidates[0].content.parts.length > 0) {
         responseText = data.candidates[0].content.parts[0].text;
+        
+        // حساب الإحصائيات
+        stats.characters = responseText.length;
+        stats.words = responseText.split(/\s+/).filter(word => word.length > 0).length;
+        const readTimeMinutes = Math.ceil(stats.words / 200); // متوسط سرعة قراءة
+        stats.estimatedReadTime = readTimeMinutes <= 1 ? 
+          `أقل من دقيقة` : 
+          `${readTimeMinutes} دقائق تقريبًا`;
       } else {
         console.error("Unexpected API response structure:", JSON.stringify(data));
         responseText = "عذراً، لم أتمكن من معالجة طلبك. يرجى المحاولة مرة أخرى.";
@@ -97,7 +141,12 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ response: responseText }),
+      JSON.stringify({ 
+        response: responseText, 
+        stats: stats,
+        platform: platform,
+        contentType: contentType
+      }),
       { 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
