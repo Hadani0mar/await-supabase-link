@@ -40,6 +40,14 @@ serve(async (req) => {
 
     console.log("Processing prompt:", prompt);
     
+    const systemPrompt = `
+    أنت مساعد متخصص في كتابة محتوى وسائل التواصل الاجتماعي باللغة العربية.
+    مهمتك هي مساعدة المستخدمين في صياغة محتوى عالي الجودة ومناسب لمختلف منصات التواصل الاجتماعي.
+    يمكنك كتابة تغريدات، منشورات فيسبوك، تعليقات انستغرام، اقتباسات، محتوى تقني، وأي محتوى آخر يطلبه المستخدم.
+    احرص على أن يكون المحتوى جذابًا، موجزًا، وملائمًا للمنصة التي سينشر فيها.
+    استخدم لغة واضحة ومفهومة، واحرص على إضافة هاشتاغات مناسبة عند الطلب.
+    `;
+    
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
@@ -51,6 +59,9 @@ serve(async (req) => {
           contents: [
             {
               parts: [
+                {
+                  text: systemPrompt,
+                },
                 {
                   text: prompt,
                 },

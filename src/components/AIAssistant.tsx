@@ -7,6 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Textarea } from '@/components/ui/textarea';
+import { Facebook, Twitter, Instagram, Copy, Share2, Send, MessageSquarePlus } from 'lucide-react';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -18,11 +20,12 @@ const AIAssistant = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'مرحباً! أنا مساعدك الذكي. كيف يمكنني مساعدتك اليوم؟ يمكنك سؤالي عن أي شيء مثل كتابة محتوى، ترجمة نصوص، تلخيص معلومات، أو تقديم اقتراحات.'
+      content: 'مرحبًا! أنا مساعدك في كتابة محتوى وسائل التواصل الاجتماعي. يمكنك أن تطلب مني كتابة منشورات، تغريدات، اقتباسات تقنية، أو أي محتوى آخر لمختلف منصات التواصل الاجتماعي.'
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const [platform, setPlatform] = useState('عام');
 
   useEffect(() => {
     scrollToBottom();
@@ -44,8 +47,10 @@ const AIAssistant = () => {
     setIsLoading(true);
 
     try {
+      const enhancedPrompt = `أنت خبير بكتابة المحتوى لوسائل التواصل الاجتماعي. اكتب محتوى ${platform !== 'عام' ? `مناسب لمنصة ${platform}` : ''}: ${prompt.trim()}`;
+      
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: { prompt: prompt.trim() },
+        body: { prompt: enhancedPrompt },
       });
 
       if (error) {
@@ -76,14 +81,82 @@ const AIAssistant = () => {
     }
   };
 
+  const copyToClipboard = (content: string) => {
+    navigator.clipboard.writeText(content).then(
+      () => {
+        toast.success('تم نسخ المحتوى إلى الحافظة');
+      },
+      () => {
+        toast.error('فشل في نسخ المحتوى');
+      }
+    );
+  };
+
+  const shareContent = (platform: string, content: string) => {
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(content)}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(content)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(content)}`;
+        break;
+      case 'telegram':
+        shareUrl = `https://telegram.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(content)}`;
+        break;
+      default:
+        if (navigator.share) {
+          navigator.share({
+            title: 'مشاركة المحتوى',
+            text: content,
+            url: window.location.href
+          }).catch(() => {
+            toast.error('فشل في مشاركة المحتوى');
+          });
+          return;
+        } else {
+          toast.info('مشاركة المحتوى غير متاحة في هذا المتصفح');
+          return;
+        }
+    }
+    
+    window.open(shareUrl, '_blank');
+  };
+
+  const platforms = [
+    { name: 'عام', icon: MessageSquarePlus },
+    { name: 'تويتر', icon: Twitter },
+    { name: 'فيسبوك', icon: Facebook },
+    { name: 'انستغرام', icon: Instagram }
+  ];
+
   return (
     <div className="flex flex-col h-full max-w-3xl mx-auto p-4 gap-4">
       <Card className="flex-1 flex flex-col shadow-lg border-2">
-        <CardHeader className="bg-gradient-to-r from-purple-700 to-blue-500 text-white rounded-t-lg pb-6">
-          <CardTitle className="text-2xl font-bold text-center">المساعد الذكي</CardTitle>
+        <CardHeader className="bg-gradient-to-r from-purple-700 to-blue-500 text-white rounded-t-lg pb-4">
+          <CardTitle className="text-2xl font-bold text-center">مساعد كتابة المحتوى</CardTitle>
           <CardDescription className="text-gray-100 text-center">
-            استخدم الذكاء الاصطناعي لمساعدتك في كتابة المحتوى، الترجمة، تلخيص المعلومات والمزيد
+            احصل على محتوى إبداعي لمنصات التواصل الاجتماعي المختلفة
           </CardDescription>
+          
+          <div className="flex flex-wrap justify-center gap-2 mt-4">
+            {platforms.map((p) => (
+              <Button
+                key={p.name}
+                variant={platform === p.name ? "secondary" : "outline"}
+                size="sm"
+                className={`flex gap-2 ${platform === p.name ? 'bg-white text-primary' : 'bg-white/20 text-white hover:bg-white/30'}`}
+                onClick={() => setPlatform(p.name)}
+              >
+                <p.icon size={16} />
+                <span>{p.name}</span>
+              </Button>
+            ))}
+          </div>
         </CardHeader>
         
         <CardContent className="flex-1 p-6 overflow-hidden">
@@ -97,13 +170,54 @@ const AIAssistant = () => {
                   }`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
+                    className={`max-w-[90%] rounded-lg p-3 ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted'
                     }`}
                   >
                     <p className="whitespace-pre-wrap" dir="auto">{message.content}</p>
+                    
+                    {message.role === 'assistant' && message.content && message.content !== messages[0].content && (
+                      <div className="flex mt-2 gap-2 justify-end">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => copyToClipboard(message.content)}
+                          title="نسخ المحتوى"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => shareContent('twitter', message.content)}
+                          title="مشاركة على تويتر"
+                        >
+                          <Twitter className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => shareContent('facebook', message.content)}
+                          title="مشاركة على فيسبوك"
+                        >
+                          <Facebook className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8" 
+                          onClick={() => shareContent('whatsapp', message.content)}
+                          title="مشاركة على واتساب"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -115,17 +229,17 @@ const AIAssistant = () => {
         <Separator />
         
         <CardFooter className="p-4">
-          <form onSubmit={handleSubmit} className="flex w-full gap-2">
-            <Input
+          <form onSubmit={handleSubmit} className="flex w-full gap-2 flex-col">
+            <Textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="اكتب رسالتك هنا..."
+              placeholder="اكتب هنا ما تريد (مثال: اكتب لي تغريدة عن أهمية الذكاء الاصطناعي في التسويق)..."
               disabled={isLoading}
-              className="flex-1 text-right"
+              className="flex-1 min-h-[80px] text-right"
               dir="rtl"
             />
-            <Button type="submit" disabled={isLoading || !prompt.trim()}>
-              {isLoading ? 'جاري الإرسال...' : 'إرسال'}
+            <Button type="submit" disabled={isLoading || !prompt.trim()} className="w-full">
+              {isLoading ? 'جاري الإرسال...' : <><Send className="ml-2 h-4 w-4" /> إرسال</>}
             </Button>
           </form>
         </CardFooter>
