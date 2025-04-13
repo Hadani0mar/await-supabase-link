@@ -85,8 +85,8 @@ const NumericSystemAnalyzer = () => {
         default: platform = 'decimal';
       }
 
-      // Use Supabase Edge Function
-      const response = await fetch('/api/ai-assistant', {
+      // Use Supabase Edge Function with the correct URL
+      const response = await fetch('https://mhtvterlwuncnfduqavw.supabase.co/functions/v1/ai-assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -97,7 +97,7 @@ const NumericSystemAnalyzer = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ error: 'خطأ في الاستجابة من الخادم' }));
         throw new Error(errorData.error || 'خطأ في الاستجابة من الخادم');
       }
 
