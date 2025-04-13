@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +66,7 @@ const NumericSystemAnalyzer = () => {
     }
   }, [history]);
 
-  const analyzeNumber = () => {
+  const analyzeNumber = async () => {
     if (!inputValue.trim()) {
       toast.error('الرجاء إدخال قيمة للتحويل');
       return;
@@ -75,71 +74,66 @@ const NumericSystemAnalyzer = () => {
 
     setIsCalculating(true);
 
-    // Simulate calculation time (can be removed in production)
-    setTimeout(() => {
-      try {
-        // Convert input to decimal first
-        let decimalValue: number;
+    try {
+      // Map input base to platform name
+      let platform;
+      switch (inputBase) {
+        case '2': platform = 'binary'; break;
+        case '8': platform = 'octal'; break;
+        case '10': platform = 'decimal'; break;
+        case '16': platform = 'hexadecimal'; break;
+        default: platform = 'decimal';
+      }
+
+      // Use Supabase Edge Function
+      const response = await fetch('/api/ai-assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: inputValue,
+          platform,
+          contentType: 'numeric',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'خطأ في الاستجابة من الخادم');
+      }
+
+      const data = await response.json();
+      
+      if (data.result && data.result.isValid) {
+        setResults(data.result);
         
-        switch (inputBase) {
-          case '2':  // Binary
-            decimalValue = parseInt(inputValue, 2);
-            break;
-          case '8':  // Octal
-            decimalValue = parseInt(inputValue, 8);
-            break;
-          case '10': // Decimal
-            decimalValue = parseInt(inputValue, 10);
-            break;
-          case '16': // Hexadecimal
-            decimalValue = parseInt(inputValue, 16);
-            break;
-          default:
-            throw new Error('نظام عددي غير معروف');
-        }
-
-        if (isNaN(decimalValue)) {
-          throw new Error('قيمة غير صالحة للنظام العددي المحدد');
-        }
-
-        // Convert decimal to all other systems
-        const result: ConversionResult = {
-          binary: decimalValue.toString(2),
-          decimal: decimalValue.toString(10),
-          octal: decimalValue.toString(8),
-          hexadecimal: decimalValue.toString(16).toUpperCase(),
-          bits: decimalValue.toString(2).length,
-          isValid: true
-        };
-
-        setResults(result);
-
         // Add to history
         setHistory(prev => [{
           input: inputValue,
           base: inputBase,
-          results: result,
+          results: data.result,
           timestamp: new Date()
         }, ...prev.slice(0, 19)]);  // Keep only last 20 items
 
         toast.success('تم التحويل بنجاح');
         setActiveTab('results');
-      } catch (error) {
-        console.error('Conversion error:', error);
-        toast.error(`خطأ في التحويل: ${error instanceof Error ? error.message : 'قيمة غير صالحة'}`);
-        
-        setResults({
-          binary: '',
-          decimal: '',
-          octal: '',
-          hexadecimal: '',
-          bits: 0,
-          isValid: false
-        });
-      } finally {
-        setIsCalculating(false);
+      } else {
+        throw new Error('قيمة غير صالحة للنظام العددي المحدد');
       }
-    }, 500);
+    } catch (error) {
+      console.error('Conversion error:', error);
+      toast.error(`خطأ في التحويل: ${error instanceof Error ? error.message : 'قيمة غير صالحة'}`);
+      
+      setResults({
+        binary: '',
+        decimal: '',
+        octal: '',
+        hexadecimal: '',
+        bits: 0,
+        isValid: false
+      });
+    } finally {
+      setIsCalculating(false);
+    }
   };
 
   const copyToClipboard = (text: string, label: string) => {

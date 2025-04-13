@@ -78,7 +78,7 @@ const Index = () => {
             <span className="text-gray-300">&copy; {new Date().getFullYear()}</span>
             <span className="text-gray-300 flex items-center">
               Bn0mar
-              <CheckCircle2 className="h-4 w-4 text-blue-500 ml-1" title="Verified Account" />
+              <CheckCircle2 className="h-4 w-4 text-blue-500 ml-1" aria-label="Verified Account" />
             </span>
           </div>
           <div className="flex justify-center gap-3 mt-2">
