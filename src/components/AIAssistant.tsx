@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -189,7 +188,7 @@ const AIAssistant = () => {
     { name: 'تويتر', icon: Twitter, color: 'bg-[#1DA1F2]' },
     { name: 'فيسبوك', icon: Facebook, color: 'bg-[#4267B2]' },
     { name: 'انستغرام', icon: Instagram, color: 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' },
-    { name: 'واتساب', icon: Whatsapp, color: 'bg-[#25D366]' }
+    { name: 'واتساب', icon: WhatsApp, color: 'bg-[#25D366]' }
   ];
 
   const contentTypes = [
@@ -495,7 +494,7 @@ const AIAssistant = () => {
                             className="flex gap-1 bg-[#25D366] text-white border-none hover:bg-[#128C7E]" 
                             onClick={() => shareContent('whatsapp', generatedContent)}
                           >
-                            <Whatsapp className="h-4 w-4" />
+                            <WhatsApp className="h-4 w-4" />
                             <span>واتساب</span>
                           </Button>
                         </div>
