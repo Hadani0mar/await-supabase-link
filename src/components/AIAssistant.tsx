@@ -11,9 +11,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Facebook, Twitter, Instagram, Copy, Share2, Send, MessageSquarePlus,
-  Loader2, BookOpenCheck, Sparkles, Clock, AlignJustify, Whatsapp, History,
+  Loader2, BookOpenCheck, Sparkles, Clock, AlignJustify, History,
   ChevronDown, Settings, Save, Heart, RotateCw, BookOpen, ThumbsUp
 } from 'lucide-react';
+import { WhatsApp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
