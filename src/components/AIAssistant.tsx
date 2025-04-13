@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Facebook, Twitter, Instagram, Copy, Share2, Send, MessageSquarePlus,
-  Loader2, BookOpenCheck, Sparkles, Clock, AlignJustify, WhatsappIcon, History,
+  Loader2, BookOpenCheck, Sparkles, Clock, AlignJustify, Whatsapp, History,
   ChevronDown, Settings, Save, Heart, RotateCw, BookOpen, ThumbsUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -188,7 +187,7 @@ const AIAssistant = () => {
     { name: 'تويتر', icon: Twitter, color: 'bg-[#1DA1F2]' },
     { name: 'فيسبوك', icon: Facebook, color: 'bg-[#4267B2]' },
     { name: 'انستغرام', icon: Instagram, color: 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' },
-    { name: 'واتساب', icon: WhatsappIcon, color: 'bg-[#25D366]' }
+    { name: 'واتساب', icon: Whatsapp, color: 'bg-[#25D366]' }
   ];
 
   const contentTypes = [
@@ -286,327 +285,329 @@ const AIAssistant = () => {
           </CardHeader>
           
           <CardContent className="p-6 relative z-10">
-            <TabsContent value="create">
-              <motion.form 
-                onSubmit={generateContent} 
-                className="space-y-4"
-                variants={slideUp}
-              >
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">اختر منصة التواصل الاجتماعي:</h3>
-                  <div className="flex flex-wrap gap-2 justify-center mb-4">
-                    {platforms.map((p) => {
-                      const IconComponent = p.icon;
-                      return (
-                        <TooltipProvider key={p.name}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <motion.button
-                                type="button"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.98 }}
-                                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${
-                                  platform === p.name 
-                                    ? `${p.color} text-white border-transparent` 
-                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                                } transition-all duration-200`}
-                                onClick={() => setPlatform(p.name)}
-                              >
-                                <IconComponent size={18} />
-                                <span>{p.name}</span>
-                              </motion.button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>إنشاء محتوى مخصص لـ {p.name}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      );
-                    })}
-                  </div>
-
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsContent value="create">
+                <motion.form 
+                  onSubmit={generateContent} 
+                  className="space-y-4"
+                  variants={slideUp}
+                >
                   <div className="mb-6">
-                    <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">اختر نوع المحتوى:</h3>
-                    <Select
-                      value={contentType}
-                      onValueChange={setContentType}
-                    >
-                      <SelectTrigger className="w-full text-right" dir="rtl">
-                        <SelectValue placeholder="اختر نوع المحتوى" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {contentTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                    <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">اختر منصة التواصل الاجتماعي:</h3>
+                    <div className="flex flex-wrap gap-2 justify-center mb-4">
+                      {platforms.map((p) => {
+                        const IconComponent = p.icon;
+                        return (
+                          <TooltipProvider key={p.name}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${
+                                    platform === p.name 
+                                      ? `${p.color} text-white border-transparent` 
+                                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                  } transition-all duration-200`}
+                                  onClick={() => setPlatform(p.name)}
+                                >
+                                  <IconComponent size={18} />
+                                  <span>{p.name}</span>
+                                </motion.button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>إنشاء محتوى مخصص لـ {p.name}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        );
+                      })}
+                    </div>
 
-                <div className="bg-gray-50 p-5 rounded-lg border mb-6">
-                  <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">ماذا تريد أن أكتب لك؟</h3>
-                  <Textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="أدخل وصفًا لما تريد... (مثال: اكتب لي تغريدة عن أهمية الذكاء الاصطناعي في التسويق)"
-                    disabled={isLoading}
-                    className="min-h-[150px] text-right"
-                    dir="rtl"
-                  />
-                  <p className="text-xs text-gray-500 mt-2 text-right">أدخل وصفًا دقيقًا للحصول على أفضل النتائج.</p>
-                </div>
-                
-                <Button 
-                  type="submit" 
-                  disabled={isLoading || !prompt.trim()} 
-                  className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-lg py-6 relative overflow-hidden group"
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <span>جاري إنشاء المحتوى...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <motion.div
-                        initial={{ scale: 1 }}
-                        animate={{ scale: [1, 1.15, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                    <div className="mb-6">
+                      <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">اختر نوع المحتوى:</h3>
+                      <Select
+                        value={contentType}
+                        onValueChange={setContentType}
                       >
-                        <Sparkles className="h-5 w-5" />
-                      </motion.div>
-                      <span>إنشاء المحتوى</span>
+                        <SelectTrigger className="w-full text-right" dir="rtl">
+                          <SelectValue placeholder="اختر نوع المحتوى" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {contentTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  )}
-                  <motion.div 
-                    className="absolute inset-0 bg-white opacity-10"
-                    initial={{ scale: 0, x: '100%' }}
-                    animate={{ scale: 1, x: '-100%' }}
-                    transition={{ 
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatType: "loop"
-                    }}
-                  />
-                </Button>
-              </motion.form>
-            </TabsContent>
-            
-            <TabsContent value="result">
-              {generatedContent ? (
-                <motion.div 
-                  className="mt-2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  ref={contentRef}
-                >
-                  <div className="bg-gray-50 p-5 rounded-lg border shadow-sm">
-                    <div className="flex justify-between items-center mb-4">
-                      <Badge variant="outline" className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>{contentStats?.estimatedReadTime}</span>
-                      </Badge>
+                  </div>
+
+                  <div className="bg-gray-50 p-5 rounded-lg border mb-6">
+                    <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">ماذا تريد أن أكتب لك؟</h3>
+                    <Textarea
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="أدخل وصفًا لما تريد... (مثال: اكتب لي تغريدة عن أهمية الذكاء الاصطناعي في التسويق)"
+                      disabled={isLoading}
+                      className="min-h-[150px] text-right"
+                      dir="rtl"
+                    />
+                    <p className="text-xs text-gray-500 mt-2 text-right">أدخل وصفًا دقيقًا للحصول على أفضل النتائج.</p>
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    disabled={isLoading || !prompt.trim()} 
+                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-lg py-6 relative overflow-hidden group"
+                  >
+                    {isLoading ? (
                       <div className="flex items-center gap-2">
-                        <h3 className="text-xl font-bold text-indigo-700">المحتوى المُنشَأ</h3>
-                        {platform !== 'عام' && (
-                          <Badge className={`
-                            ${platform === 'تويتر' ? 'bg-[#1DA1F2]' : ''}
-                            ${platform === 'فيسبوك' ? 'bg-[#4267B2]' : ''}
-                            ${platform === 'انستغرام' ? 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' : ''}
-                            ${platform === 'واتساب' ? 'bg-[#25D366]' : ''}
-                          `}>
-                            {platform}
-                          </Badge>
-                        )}
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span>جاري إنشاء المحتوى...</span>
                       </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          className="flex gap-1 border-gray-300"
-                          onClick={() => copyToClipboard(generatedContent)}
-                          title="نسخ المحتوى"
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <motion.div
+                          initial={{ scale: 1 }}
+                          animate={{ scale: [1, 1.15, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
                         >
-                          <Copy className="h-4 w-4" />
-                          <span>نسخ</span>
-                        </Button>
+                          <Sparkles className="h-5 w-5" />
+                          <span>إنشاء المحتوى</span>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="whitespace-pre-wrap text-right py-4 px-5 bg-white rounded-md border-2 border-gray-100 shadow-inner min-h-[200px]" dir="rtl">
-                      {generatedContent.split('\n').map((line, i) => (
-                        <p key={i} className={line.trim() === '' ? 'my-2' : 'mb-2'}>
-                          {line}
-                        </p>
-                      ))}
-                    </div>
-                    
-                    <div className="flex flex-wrap justify-between items-center mt-4 pt-3 border-t">
-                      <div className="flex items-center gap-1">
-                        {contentStats && (
-                          <>
-                            <Badge variant="outline" className="mr-2 text-xs">
-                              {contentStats.characters} حرفًا
+                    )}
+                    <motion.div 
+                      className="absolute inset-0 bg-white opacity-10"
+                      initial={{ scale: 0, x: '100%' }}
+                      animate={{ scale: 1, x: '-100%' }}
+                      transition={{ 
+                        duration: 1.5,
+                        repeat: Infinity,
+                        repeatType: "loop"
+                      }}
+                    />
+                  </Button>
+                </motion.form>
+              </TabsContent>
+              
+              <TabsContent value="result">
+                {generatedContent ? (
+                  <motion.div 
+                    className="mt-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    ref={contentRef}
+                  >
+                    <div className="bg-gray-50 p-5 rounded-lg border shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{contentStats?.estimatedReadTime}</span>
+                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-xl font-bold text-indigo-700">المحتوى المُنشَأ</h3>
+                          {platform !== 'عام' && (
+                            <Badge className={`
+                              ${platform === 'تويتر' ? 'bg-[#1DA1F2]' : ''}
+                              ${platform === 'فيسبوك' ? 'bg-[#4267B2]' : ''}
+                              ${platform === 'انستغرام' ? 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' : ''}
+                              ${platform === 'واتساب' ? 'bg-[#25D366]' : ''}
+                            `}>
+                              {platform}
                             </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {contentStats.words} كلمة
-                            </Badge>
-                          </>
-                        )}
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            className="flex gap-1 border-gray-300"
+                            onClick={() => copyToClipboard(generatedContent)}
+                            title="نسخ المحتوى"
+                          >
+                            <Copy className="h-4 w-4" />
+                            <span>نسخ</span>
+                          </Button>
+                        </div>
                       </div>
                       
-                      <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-                        <h4 className="text-sm text-gray-500 ml-2 flex items-center">مشاركة على:</h4>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex gap-1 bg-[#1DA1F2] text-white border-none hover:bg-[#1a94e0]" 
-                          onClick={() => shareContent('twitter', generatedContent)}
+                      <div className="whitespace-pre-wrap text-right py-4 px-5 bg-white rounded-md border-2 border-gray-100 shadow-inner min-h-[200px]" dir="rtl">
+                        {generatedContent.split('\n').map((line, i) => (
+                          <p key={i} className={line.trim() === '' ? 'my-2' : 'mb-2'}>
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                      
+                      <div className="flex flex-wrap justify-between items-center mt-4 pt-3 border-t">
+                        <div className="flex items-center gap-1">
+                          {contentStats && (
+                            <>
+                              <Badge variant="outline" className="mr-2 text-xs">
+                                {contentStats.characters} حرفًا
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {contentStats.words} كلمة
+                              </Badge>
+                            </>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                          <h4 className="text-sm text-gray-500 ml-2 flex items-center">مشاركة على:</h4>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex gap-1 bg-[#1DA1F2] text-white border-none hover:bg-[#1a94e0]" 
+                            onClick={() => shareContent('twitter', generatedContent)}
+                          >
+                            <Twitter className="h-4 w-4" />
+                            <span>تويتر</span>
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex gap-1 bg-[#4267B2] text-white border-none hover:bg-[#365899]" 
+                            onClick={() => shareContent('facebook', generatedContent)}
+                          >
+                            <Facebook className="h-4 w-4" />
+                            <span>فيسبوك</span>
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex gap-1 bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80] text-white border-none hover:opacity-90" 
+                            onClick={() => shareContent('instagram', generatedContent)}
+                          >
+                            <Instagram className="h-4 w-4" />
+                            <span>انستغرام</span>
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex gap-1 bg-[#25D366] text-white border-none hover:bg-[#128C7E]" 
+                            onClick={() => shareContent('whatsapp', generatedContent)}
+                          >
+                            <Whatsapp className="h-4 w-4" />
+                            <span>واتساب</span>
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-center gap-2 mt-6">
+                        <Button
+                          variant="outline"
+                          className="flex gap-2 items-center"
+                          onClick={() => setActiveTab('create')}
                         >
-                          <Twitter className="h-4 w-4" />
-                          <span>تويتر</span>
+                          <RotateCw className="h-4 w-4" />
+                          <span>إنشاء محتوى آخر</span>
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex gap-1 bg-[#4267B2] text-white border-none hover:bg-[#365899]" 
-                          onClick={() => shareContent('facebook', generatedContent)}
+                        <Button
+                          variant="ghost"
+                          className="flex gap-2 items-center"
+                          onClick={() => toast.success('تم حفظ المحتوى في السجل')}
                         >
-                          <Facebook className="h-4 w-4" />
-                          <span>فيسبوك</span>
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex gap-1 bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80] text-white border-none hover:opacity-90" 
-                          onClick={() => shareContent('instagram', generatedContent)}
-                        >
-                          <Instagram className="h-4 w-4" />
-                          <span>انستغرام</span>
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex gap-1 bg-[#25D366] text-white border-none hover:bg-[#128C7E]" 
-                          onClick={() => shareContent('whatsapp', generatedContent)}
-                        >
-                          <WhatsappIcon className="h-4 w-4" />
-                          <span>واتساب</span>
+                          <ThumbsUp className="h-4 w-4" />
+                          <span>أعجبني</span>
                         </Button>
                       </div>
                     </div>
-                    
-                    <div className="flex justify-center gap-2 mt-6">
-                      <Button
-                        variant="outline"
-                        className="flex gap-2 items-center"
-                        onClick={() => setActiveTab('create')}
-                      >
-                        <RotateCw className="h-4 w-4" />
-                        <span>إنشاء محتوى آخر</span>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="flex gap-2 items-center"
-                        onClick={() => toast.success('تم حفظ المحتوى في السجل')}
-                      >
-                        <ThumbsUp className="h-4 w-4" />
-                        <span>أعجبني</span>
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-                  <BookOpen className="h-12 w-12 mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium mb-1">لا يوجد محتوى حاليًا</h3>
-                  <p className="text-sm max-w-sm text-center">
-                    انتقل إلى قسم "إنشاء محتوى" لتوليد محتوى جديد أو اختر من محفوظاتك السابقة.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={() => setActiveTab('create')}
-                  >
-                    إنشاء محتوى جديد
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="history">
-              <div className="mb-4 flex justify-between items-center">
-                <h3 className="text-lg font-semibold">سجل المحتوى السابق</h3>
-                {history.length > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => {
-                      if(confirm('هل أنت متأكد من حذف سجل المحتوى بالكامل؟')) {
-                        setHistory([]);
-                        localStorage.removeItem('contentHistory');
-                        toast.success('تم محو السجل بنجاح');
-                      }
-                    }}
-                  >
-                    محو السجل
-                  </Button>
-                )}
-              </div>
-              
-              <ScrollArea className="h-[350px] pr-3">
-                {history.length > 0 ? (
-                  <motion.div layout className="space-y-3">
-                    <AnimatePresence>
-                      {history.map((message, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          transition={{ duration: 0.3 }}
-                          className="bg-white border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer"
-                          onClick={() => loadFromHistory(message)}
-                        >
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center gap-2">
-                              {message.platform && (
-                                <Badge variant="outline" className="text-xs">
-                                  {message.platform}
-                                </Badge>
-                              )}
-                              {message.contentType && message.contentType !== 'عام' && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {message.contentType}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-xs text-gray-500 flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              <span dir="ltr">{formatDate(message.timestamp)}</span>
-                            </div>
-                          </div>
-                          <p className="text-sm text-right line-clamp-2" dir="rtl">
-                            {message.content}
-                          </p>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
                   </motion.div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-                    <History className="h-12 w-12 mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-1">لا يوجد سجل للمحتوى</h3>
+                    <BookOpen className="h-12 w-12 mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium mb-1">لا يوجد محتوى حاليًا</h3>
                     <p className="text-sm max-w-sm text-center">
-                      عندما تقوم بإنشاء محتوى، سيتم حفظه هنا تلقائيًا.
+                      انتقل إلى قسم "إنشاء محتوى" لتوليد محتوى جديد أو اختر من محفوظاتك السابقة.
                     </p>
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={() => setActiveTab('create')}
+                    >
+                      إنشاء محتوى جديد
+                    </Button>
                   </div>
                 )}
-              </ScrollArea>
-            </TabsContent>
+              </TabsContent>
+              
+              <TabsContent value="history">
+                <div className="mb-4 flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">سجل المحتوى السابق</h3>
+                  {history.length > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                        if(confirm('هل أنت متأكد من حذف سجل المحتوى بالكامل؟')) {
+                          setHistory([]);
+                          localStorage.removeItem('contentHistory');
+                          toast.success('تم محو السجل بنجاح');
+                        }
+                      }}
+                    >
+                      محو السجل
+                    </Button>
+                  )}
+                </div>
+                
+                <ScrollArea className="h-[350px] pr-3">
+                  {history.length > 0 ? (
+                    <motion.div layout className="space-y-3">
+                      <AnimatePresence>
+                        {history.map((message, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-white border rounded-lg p-3 hover:shadow-md transition-shadow cursor-pointer"
+                            onClick={() => loadFromHistory(message)}
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex items-center gap-2">
+                                {message.platform && (
+                                  <Badge variant="outline" className="text-xs">
+                                    {message.platform}
+                                  </Badge>
+                                )}
+                                {message.contentType && message.contentType !== 'عام' && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {message.contentType}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-500 flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                <span dir="ltr">{formatDate(message.timestamp)}</span>
+                              </div>
+                            </div>
+                            <p className="text-sm text-right line-clamp-2" dir="rtl">
+                              {message.content}
+                            </p>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                      <History className="h-12 w-12 mb-4 opacity-50" />
+                      <h3 className="text-lg font-medium mb-1">لا يوجد سجل للمحتوى</h3>
+                      <p className="text-sm max-w-sm text-center">
+                        عندما تقوم بإنشاء محتوى، سيتم حفظه هنا تلقائيًا.
+                      </p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </motion.div>

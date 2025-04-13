@@ -258,324 +258,326 @@ const NumericSystemAnalyzer = () => {
           </CardHeader>
           
           <CardContent className="p-6 relative z-10">
-            <TabsContent value="converter">
-              <motion.div 
-                className="space-y-4"
-                variants={slideUp}
-              >
-                <div className="mb-6">
-                  <h3 className="text-lg font-medium text-white mb-3 text-right">اختر نظام الإدخال:</h3>
-                  <div className="flex flex-wrap gap-2 justify-center mb-4">
-                    {[
-                      { value: '2', label: 'ثنائي (Binary)', icon: Binary },
-                      { value: '8', label: 'ثماني (Octal)', icon: () => <span className="font-mono">8</span> },
-                      { value: '10', label: 'عشري (Decimal)', icon: Hash },
-                      { value: '16', label: 'ست عشري (Hex)', icon: () => <span className="font-mono">0x</span> },
-                    ].map((system) => {
-                      const IconComponent = system.icon;
-                      return (
-                        <motion.button
-                          key={system.value}
-                          type="button"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${
-                            inputBase === system.value 
-                              ? `bg-blue-600 text-white border-blue-500` 
-                              : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600'
-                          } transition-all duration-200`}
-                          onClick={() => setInputBase(system.value)}
-                        >
-                          <IconComponent size={18} />
-                          <span>{system.label}</span>
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="bg-slate-700/50 p-5 rounded-lg border border-slate-600 mb-6">
-                  <h3 className="text-lg font-medium text-white mb-3 text-right">أدخل الرقم للتحويل:</h3>
-                  <div className="relative">
-                    <Label 
-                      htmlFor="number-input" 
-                      className="absolute top-3 right-3 px-2 py-0.5 bg-slate-800 text-blue-300 rounded text-xs z-10"
-                    >
-                      {getBaseName(inputBase)}
-                    </Label>
-                    <Input
-                      id="number-input"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      placeholder={inputBase === '16' ? "مثال: 1A3F" : inputBase === '2' ? "مثال: 10101" : "أدخل رقم للتحويل..."}
-                      disabled={isCalculating}
-                      className="min-h-[50px] text-right bg-slate-800 border-slate-600 text-white placeholder:text-slate-400"
-                      dir="rtl"
-                    />
-                  </div>
-                  <div className="flex justify-between mt-2 text-xs text-slate-400">
-                    <p>حروف A-F مسموح بها للنظام الست عشري</p>
-                    <p className="text-right">
-                      {inputBase === '2' && "0 و 1 فقط"}
-                      {inputBase === '8' && "0-7 فقط"}
-                      {inputBase === '10' && "0-9 فقط"}
-                      {inputBase === '16' && "0-9, A-F فقط"}
-                    </p>
-                  </div>
-                </div>
-                
-                <Button 
-                  onClick={analyzeNumber}
-                  disabled={isCalculating || !inputValue.trim()} 
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg py-6 relative overflow-hidden group"
-                >
-                  {isCalculating ? (
-                    <div className="flex items-center gap-2">
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>جاري التحليل...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <Binary className="h-5 w-5" />
-                      <span>تحليل وتحويل</span>
-                    </div>
-                  )}
-                  <motion.div 
-                    className="absolute inset-0 bg-white opacity-10"
-                    initial={{ scale: 0, x: '100%' }}
-                    animate={{ scale: 1, x: '-100%' }}
-                    transition={{ 
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatType: "loop"
-                    }}
-                  />
-                </Button>
-              </motion.div>
-            </TabsContent>
-            
-            <TabsContent value="results">
-              {results ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsContent value="converter">
                 <motion.div 
-                  className="mt-2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
+                  className="space-y-4"
+                  variants={slideUp}
                 >
-                  <div className="bg-slate-700/50 p-5 rounded-lg border border-slate-600 shadow-sm">
-                    <div className="flex justify-between items-center mb-4">
-                      <Badge variant="outline" className="flex items-center gap-1 border-slate-500">
-                        <Info className="h-3 w-3" />
-                        <span>{results.bits} بت</span>
-                      </Badge>
-                      <h3 className="text-xl font-bold text-blue-300">نتائج التحليل</h3>
-                      <Badge 
-                        className={`
-                          ${inputBase === '2' ? 'bg-blue-800' : ''}
-                          ${inputBase === '8' ? 'bg-purple-800' : ''}
-                          ${inputBase === '10' ? 'bg-green-800' : ''}
-                          ${inputBase === '16' ? 'bg-orange-800' : ''}
-                        `}
+                  <div className="mb-6">
+                    <h3 className="text-lg font-medium text-white mb-3 text-right">اختر نظام الإدخال:</h3>
+                    <div className="flex flex-wrap gap-2 justify-center mb-4">
+                      {[
+                        { value: '2', label: 'ثنائي (Binary)', icon: Binary },
+                        { value: '8', label: 'ثماني (Octal)', icon: () => <span className="font-mono">8</span> },
+                        { value: '10', label: 'عشري (Decimal)', icon: Hash },
+                        { value: '16', label: 'ست عشري (Hex)', icon: () => <span className="font-mono">0x</span> },
+                      ].map((system) => {
+                        const IconComponent = system.icon;
+                        return (
+                          <motion.button
+                            key={system.value}
+                            type="button"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border ${
+                              inputBase === system.value 
+                                ? `bg-blue-600 text-white border-blue-500` 
+                                : 'bg-slate-700 text-slate-300 border-slate-600 hover:bg-slate-600'
+                            } transition-all duration-200`}
+                            onClick={() => setInputBase(system.value)}
+                          >
+                            <IconComponent size={18} />
+                            <span>{system.label}</span>
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-700/50 p-5 rounded-lg border border-slate-600 mb-6">
+                    <h3 className="text-lg font-medium text-white mb-3 text-right">أدخل الرقم للتحويل:</h3>
+                    <div className="relative">
+                      <Label 
+                        htmlFor="number-input" 
+                        className="absolute top-3 right-3 px-2 py-0.5 bg-slate-800 text-blue-300 rounded text-xs z-10"
                       >
                         {getBaseName(inputBase)}
-                      </Badge>
+                      </Label>
+                      <Input
+                        id="number-input"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder={inputBase === '16' ? "مثال: 1A3F" : inputBase === '2' ? "مثال: 10101" : "أدخل رقم للتحويل..."}
+                        disabled={isCalculating}
+                        className="min-h-[50px] text-right bg-slate-800 border-slate-600 text-white placeholder:text-slate-400"
+                        dir="rtl"
+                      />
                     </div>
-                    
-                    <div className="space-y-4 mt-6">
-                      {/* Binary Result */}
-                      <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
-                        <div className="flex justify-between items-center mb-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => copyToClipboard(results.binary, "النظام الثنائي")}
-                            className="text-slate-300 hover:text-white"
-                          >
-                            <Copy size={14} />
-                          </Button>
-                          <h4 className="font-medium text-blue-300 flex items-center gap-1">
-                            <Binary size={16} />
-                            <span>النظام الثنائي (Binary)</span>
-                          </h4>
-                        </div>
-                        <p className="font-mono text-right py-2 text-white break-all">{results.binary || "غير صالح"}</p>
-                      </div>
-                      
-                      {/* Decimal Result */}
-                      <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
-                        <div className="flex justify-between items-center mb-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => copyToClipboard(results.decimal, "النظام العشري")}
-                            className="text-slate-300 hover:text-white"
-                          >
-                            <Copy size={14} />
-                          </Button>
-                          <h4 className="font-medium text-green-300 flex items-center gap-1">
-                            <Hash size={16} />
-                            <span>النظام العشري (Decimal)</span>
-                          </h4>
-                        </div>
-                        <p className="font-mono text-right py-2 text-white">{results.decimal || "غير صالح"}</p>
-                      </div>
-                      
-                      {/* Octal Result */}
-                      <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
-                        <div className="flex justify-between items-center mb-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => copyToClipboard(results.octal, "النظام الثماني")}
-                            className="text-slate-300 hover:text-white"
-                          >
-                            <Copy size={14} />
-                          </Button>
-                          <h4 className="font-medium text-purple-300 flex items-center gap-1">
-                            <span className="font-mono text-sm">8</span>
-                            <span>النظام الثماني (Octal)</span>
-                          </h4>
-                        </div>
-                        <p className="font-mono text-right py-2 text-white">{results.octal || "غير صالح"}</p>
-                      </div>
-                      
-                      {/* Hexadecimal Result */}
-                      <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
-                        <div className="flex justify-between items-center mb-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => copyToClipboard(results.hexadecimal, "النظام الست عشري")}
-                            className="text-slate-300 hover:text-white"
-                          >
-                            <Copy size={14} />
-                          </Button>
-                          <h4 className="font-medium text-orange-300 flex items-center gap-1">
-                            <span className="font-mono text-sm">0x</span>
-                            <span>النظام الست عشري (Hex)</span>
-                          </h4>
-                        </div>
-                        <p className="font-mono text-right py-2 text-white">{results.hexadecimal || "غير صالح"}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-center gap-2 mt-6">
-                      <Button
-                        variant="outline"
-                        className="flex gap-2 items-center border-slate-500 text-slate-300 hover:text-white"
-                        onClick={() => setActiveTab('converter')}
-                      >
-                        <RotateCw className="h-4 w-4" />
-                        <span>تحويل رقم آخر</span>
-                      </Button>
+                    <div className="flex justify-between mt-2 text-xs text-slate-400">
+                      <p>حروف A-F مسموح بها للنظام الست عشري</p>
+                      <p className="text-right">
+                        {inputBase === '2' && "0 و 1 فقط"}
+                        {inputBase === '8' && "0-7 فقط"}
+                        {inputBase === '10' && "0-9 فقط"}
+                        {inputBase === '16' && "0-9, A-F فقط"}
+                      </p>
                     </div>
                   </div>
-                </motion.div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                  <AlertCircle className="h-12 w-12 mb-4 opacity-50" />
-                  <h3 className="text-lg font-medium mb-1">لا توجد نتائج بعد</h3>
-                  <p className="text-sm max-w-sm text-center">
-                    انتقل إلى المحول لإدخال رقم وتحويله بين الأنظمة العددية المختلفة.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="mt-4 border-slate-600 text-slate-300"
-                    onClick={() => setActiveTab('converter')}
-                  >
-                    البدء في التحويل
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="history">
-              <div className="mb-4 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-slate-200">سجل التحويلات السابقة</h3>
-                {history.length > 0 && (
+                  
                   <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={clearHistory}
-                    className="text-slate-300"
+                    onClick={analyzeNumber}
+                    disabled={isCalculating || !inputValue.trim()} 
+                    className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg py-6 relative overflow-hidden group"
                   >
-                    محو السجل
+                    {isCalculating ? (
+                      <div className="flex items-center gap-2">
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>جاري التحليل...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Binary className="h-5 w-5" />
+                        <span>تحليل وتحويل</span>
+                      </div>
+                    )}
+                    <motion.div 
+                      className="absolute inset-0 bg-white opacity-10"
+                      initial={{ scale: 0, x: '100%' }}
+                      animate={{ scale: 1, x: '-100%' }}
+                      transition={{ 
+                        duration: 1.5,
+                        repeat: Infinity,
+                        repeatType: "loop"
+                      }}
+                    />
                   </Button>
-                )}
-              </div>
+                </motion.div>
+              </TabsContent>
               
-              <ScrollArea className="h-[350px] pr-3">
-                {history.length > 0 ? (
-                  <motion.div layout className="space-y-3">
-                    <AnimatePresence>
-                      {history.map((item, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          transition={{ duration: 0.3 }}
-                          className="bg-slate-700 border border-slate-600 rounded-lg p-3 hover:bg-slate-600 transition-colors cursor-pointer"
-                          onClick={() => loadFromHistory(item)}
+              <TabsContent value="results">
+                {results ? (
+                  <motion.div 
+                    className="mt-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className="bg-slate-700/50 p-5 rounded-lg border border-slate-600 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <Badge variant="outline" className="flex items-center gap-1 border-slate-500">
+                          <Info className="h-3 w-3" />
+                          <span>{results.bits} بت</span>
+                        </Badge>
+                        <h3 className="text-xl font-bold text-blue-300">نتائج التحليل</h3>
+                        <Badge 
+                          className={`
+                            ${inputBase === '2' ? 'bg-blue-800' : ''}
+                            ${inputBase === '8' ? 'bg-purple-800' : ''}
+                            ${inputBase === '10' ? 'bg-green-800' : ''}
+                            ${inputBase === '16' ? 'bg-orange-800' : ''}
+                          `}
                         >
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center gap-2">
-                              <Badge
-                                className={`
-                                  ${item.base === '2' ? 'bg-blue-800' : ''}
-                                  ${item.base === '8' ? 'bg-purple-800' : ''}
-                                  ${item.base === '10' ? 'bg-green-800' : ''}
-                                  ${item.base === '16' ? 'bg-orange-800' : ''}
-                                `}
-                              >
-                                {getBaseName(item.base)}
-                              </Badge>
-                            </div>
-                            <div className="text-xs text-slate-400 flex items-center gap-1" dir="ltr">
-                              <span>{formatDate(item.timestamp)}</span>
-                            </div>
+                          {getBaseName(inputBase)}
+                        </Badge>
+                      </div>
+                      
+                      <div className="space-y-4 mt-6">
+                        {/* Binary Result */}
+                        <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
+                          <div className="flex justify-between items-center mb-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => copyToClipboard(results.binary, "النظام الثنائي")}
+                              className="text-slate-300 hover:text-white"
+                            >
+                              <Copy size={14} />
+                            </Button>
+                            <h4 className="font-medium text-blue-300 flex items-center gap-1">
+                              <Binary size={16} />
+                              <span>النظام الثنائي (Binary)</span>
+                            </h4>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center text-blue-300 text-sm">
-                              <ChevronRight className="h-4 w-4" />
-                              <span>{item.results.bits} بت</span>
-                            </div>
-                            <p className="text-sm text-right font-mono text-white" dir="ltr">
-                              {item.input}
-                            </p>
+                          <p className="font-mono text-right py-2 text-white break-all">{results.binary || "غير صالح"}</p>
+                        </div>
+                        
+                        {/* Decimal Result */}
+                        <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
+                          <div className="flex justify-between items-center mb-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => copyToClipboard(results.decimal, "النظام العشري")}
+                              className="text-slate-300 hover:text-white"
+                            >
+                              <Copy size={14} />
+                            </Button>
+                            <h4 className="font-medium text-green-300 flex items-center gap-1">
+                              <Hash size={16} />
+                              <span>النظام العشري (Decimal)</span>
+                            </h4>
                           </div>
-                          <div className="mt-2 grid grid-cols-4 gap-2 text-xs">
-                            <div className="text-blue-300">
-                              <span className="text-slate-400">ثنائي:</span> {item.results.binary.substring(0, 8)}{item.results.binary.length > 8 ? '...' : ''}
-                            </div>
-                            <div className="text-green-300">
-                              <span className="text-slate-400">عشري:</span> {item.results.decimal}
-                            </div>
-                            <div className="text-purple-300">
-                              <span className="text-slate-400">ثماني:</span> {item.results.octal}
-                            </div>
-                            <div className="text-orange-300">
-                              <span className="text-slate-400">ست عشري:</span> {item.results.hexadecimal}
-                            </div>
+                          <p className="font-mono text-right py-2 text-white">{results.decimal || "غير صالح"}</p>
+                        </div>
+                        
+                        {/* Octal Result */}
+                        <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
+                          <div className="flex justify-between items-center mb-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => copyToClipboard(results.octal, "النظام الثماني")}
+                              className="text-slate-300 hover:text-white"
+                            >
+                              <Copy size={14} />
+                            </Button>
+                            <h4 className="font-medium text-purple-300 flex items-center gap-1">
+                              <span className="font-mono text-sm">8</span>
+                              <span>النظام الثماني (Octal)</span>
+                            </h4>
                           </div>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
+                          <p className="font-mono text-right py-2 text-white">{results.octal || "غير صالح"}</p>
+                        </div>
+                        
+                        {/* Hexadecimal Result */}
+                        <div className="bg-slate-800 rounded-md border border-slate-600 p-3">
+                          <div className="flex justify-between items-center mb-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => copyToClipboard(results.hexadecimal, "النظام الست عشري")}
+                              className="text-slate-300 hover:text-white"
+                            >
+                              <Copy size={14} />
+                            </Button>
+                            <h4 className="font-medium text-orange-300 flex items-center gap-1">
+                              <span className="font-mono text-sm">0x</span>
+                              <span>النظام الست عشري (Hex)</span>
+                            </h4>
+                          </div>
+                          <p className="font-mono text-right py-2 text-white">{results.hexadecimal || "غير صالح"}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-center gap-2 mt-6">
+                        <Button
+                          variant="outline"
+                          className="flex gap-2 items-center border-slate-500 text-slate-300 hover:text-white"
+                          onClick={() => setActiveTab('converter')}
+                        >
+                          <RotateCw className="h-4 w-4" />
+                          <span>تحويل رقم آخر</span>
+                        </Button>
+                      </div>
+                    </div>
                   </motion.div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                    <RefreshCcw className="h-12 w-12 mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-1">لا يوجد سجل للتحويلات</h3>
+                    <AlertCircle className="h-12 w-12 mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium mb-1">لا توجد نتائج بعد</h3>
                     <p className="text-sm max-w-sm text-center">
-                      عندما تقوم بتحويل الأرقام، ستظهر هنا لتتمكن من الرجوع إليها لاحقًا.
+                      انتقل إلى المحول لإدخال رقم وتحويله بين الأنظمة العددية المختلفة.
                     </p>
+                    <Button
+                      variant="outline"
+                      className="mt-4 border-slate-600 text-slate-300"
+                      onClick={() => setActiveTab('converter')}
+                    >
+                      البدء في التحويل
+                    </Button>
                   </div>
                 )}
-              </ScrollArea>
-            </TabsContent>
+              </TabsContent>
+              
+              <TabsContent value="history">
+                <div className="mb-4 flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-slate-200">سجل التحويلات السابقة</h3>
+                  {history.length > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={clearHistory}
+                      className="text-slate-300"
+                    >
+                      محو السجل
+                    </Button>
+                  )}
+                </div>
+                
+                <ScrollArea className="h-[350px] pr-3">
+                  {history.length > 0 ? (
+                    <motion.div layout className="space-y-3">
+                      <AnimatePresence>
+                        {history.map((item, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                            className="bg-slate-700 border border-slate-600 rounded-lg p-3 hover:bg-slate-600 transition-colors cursor-pointer"
+                            onClick={() => loadFromHistory(item)}
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex items-center gap-2">
+                                <Badge
+                                  className={`
+                                    ${item.base === '2' ? 'bg-blue-800' : ''}
+                                    ${item.base === '8' ? 'bg-purple-800' : ''}
+                                    ${item.base === '10' ? 'bg-green-800' : ''}
+                                    ${item.base === '16' ? 'bg-orange-800' : ''}
+                                  `}
+                                >
+                                  {getBaseName(item.base)}
+                                </Badge>
+                              </div>
+                              <div className="text-xs text-slate-400 flex items-center gap-1" dir="ltr">
+                                <span>{formatDate(item.timestamp)}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center text-blue-300 text-sm">
+                                <ChevronRight className="h-4 w-4" />
+                                <span>{item.results.bits} بت</span>
+                              </div>
+                              <p className="text-sm text-right font-mono text-white" dir="ltr">
+                                {item.input}
+                              </p>
+                            </div>
+                            <div className="mt-2 grid grid-cols-4 gap-2 text-xs">
+                              <div className="text-blue-300">
+                                <span className="text-slate-400">ثنائي:</span> {item.results.binary.substring(0, 8)}{item.results.binary.length > 8 ? '...' : ''}
+                              </div>
+                              <div className="text-green-300">
+                                <span className="text-slate-400">عشري:</span> {item.results.decimal}
+                              </div>
+                              <div className="text-purple-300">
+                                <span className="text-slate-400">ثماني:</span> {item.results.octal}
+                              </div>
+                              <div className="text-orange-300">
+                                <span className="text-slate-400">ست عشري:</span> {item.results.hexadecimal}
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </motion.div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+                      <RefreshCcw className="h-12 w-12 mb-4 opacity-50" />
+                      <h3 className="text-lg font-medium mb-1">لا يوجد سجل للتحويلات</h3>
+                      <p className="text-sm max-w-sm text-center">
+                        عندما تقوم بتحويل الأرقام، ستظهر هنا لتتمكن من الرجوع إليها لاحقًا.
+                      </p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </motion.div>
