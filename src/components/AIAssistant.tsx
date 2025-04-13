@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -376,8 +377,8 @@ const AIAssistant = () => {
                           transition={{ duration: 2, repeat: Infinity }}
                         >
                           <Sparkles className="h-5 w-5" />
-                          <span>إنشاء المحتوى</span>
-                        </div>
+                        </motion.div>
+                        <span>إنشاء المحتوى</span>
                       </div>
                     )}
                     <motion.div 
