@@ -24,7 +24,16 @@ serve(async (req) => {
 
   try {
     // Parse request body
-    const { prompt, platform, contentType } = await req.json();
+    const requestData = await req.json().catch(error => {
+      throw new Error(`Invalid JSON: ${error.message}`);
+    });
+    
+    const { prompt, platform, contentType } = requestData;
+
+    // Validate inputs
+    if (!prompt || typeof prompt !== 'string') {
+      throw new Error('Invalid input: prompt must be a string');
+    }
 
     // Simulate processing time for better UX
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -38,17 +47,17 @@ serve(async (req) => {
       
       switch (platform) {
         case 'binary':  // Binary
-          decimalValue = parseInt(prompt, 2);
+          decimalValue = parseInt(prompt.replace(/\s+/g, ''), 2);
           break;
         case 'octal':  // Octal
-          decimalValue = parseInt(prompt, 8);
+          decimalValue = parseInt(prompt.replace(/\s+/g, ''), 8);
           break;
         case 'decimal': // Decimal
         default:
-          decimalValue = parseInt(prompt, 10);
+          decimalValue = parseInt(prompt.replace(/\s+/g, ''), 10);
           break;
         case 'hexadecimal': // Hexadecimal
-          decimalValue = parseInt(prompt, 16);
+          decimalValue = parseInt(prompt.replace(/\s+/g, ''), 16);
           break;
       }
       
@@ -109,10 +118,12 @@ serve(async (req) => {
       },
     );
   } catch (error) {
+    console.error('Error processing request:', error);
+    
     // Return error response
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error.message || 'Unknown error occurred',
       }),
       { 
         status: 400,

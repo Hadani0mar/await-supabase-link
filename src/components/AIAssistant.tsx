@@ -11,8 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
   Facebook, Twitter, Instagram, Copy, Share2, Send, MessageSquarePlus,
   Loader2, BookOpenCheck, Sparkles, Clock, AlignJustify, History,
-  ChevronDown, Settings, Save, Heart, RotateCw, BookOpen, ThumbsUp,
-  WhatsApp
+  ChevronDown, Settings, Save, Heart, RotateCw, BookOpen, ThumbsUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -91,11 +90,11 @@ const AIAssistant = () => {
       const startTime = Date.now();
       
       const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: { 
+        body: JSON.stringify({ 
           prompt: prompt.trim(),
           platform,
           contentType
-        },
+        }),
       });
 
       if (error) {
@@ -153,9 +152,6 @@ const AIAssistant = () => {
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(content)}`;
         break;
-      case 'whatsapp':
-        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(content)}`;
-        break;
       case 'telegram':
         shareUrl = `https://telegram.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(content)}`;
         break;
@@ -187,8 +183,7 @@ const AIAssistant = () => {
     { name: 'عام', icon: MessageSquarePlus, color: 'bg-gray-600' },
     { name: 'تويتر', icon: Twitter, color: 'bg-[#1DA1F2]' },
     { name: 'فيسبوك', icon: Facebook, color: 'bg-[#4267B2]' },
-    { name: 'انستغرام', icon: Instagram, color: 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' },
-    { name: 'واتساب', icon: WhatsApp, color: 'bg-[#25D366]' }
+    { name: 'انستغرام', icon: Instagram, color: 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' }
   ];
 
   const contentTypes = [
@@ -417,7 +412,6 @@ const AIAssistant = () => {
                               ${platform === 'تويتر' ? 'bg-[#1DA1F2]' : ''}
                               ${platform === 'فيسبوك' ? 'bg-[#4267B2]' : ''}
                               ${platform === 'انستغرام' ? 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' : ''}
-                              ${platform === 'واتساب' ? 'bg-[#25D366]' : ''}
                             `}>
                               {platform}
                             </Badge>
@@ -487,15 +481,6 @@ const AIAssistant = () => {
                           >
                             <Instagram className="h-4 w-4" />
                             <span>انستغرام</span>
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex gap-1 bg-[#25D366] text-white border-none hover:bg-[#128C7E]" 
-                            onClick={() => shareContent('whatsapp', generatedContent)}
-                          >
-                            <WhatsApp className="h-4 w-4" />
-                            <span>واتساب</span>
                           </Button>
                         </div>
                       </div>
