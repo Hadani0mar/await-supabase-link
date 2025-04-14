@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
   Facebook, Twitter, Instagram, Copy, Share2, Send, MessageSquarePlus,
   Loader2, BookOpenCheck, Sparkles, Clock, AlignJustify, History,
-  ChevronDown, Settings, Save, Heart, RotateCw, BookOpen, ThumbsUp
+  ChevronDown, Settings, Save, Heart, RotateCw, BookOpen, ThumbsUp,
+  BookHeart, Brain, Lightbulb, DollarSign, Baby, FileCheck, ScrollText, BookOpenText
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -181,20 +183,23 @@ const AIAssistant = () => {
 
   const platforms = [
     { name: 'عام', icon: MessageSquarePlus, color: 'bg-gray-600' },
-    { name: 'تويتر', icon: Twitter, color: 'bg-[#1DA1F2]' },
-    { name: 'فيسبوك', icon: Facebook, color: 'bg-[#4267B2]' },
-    { name: 'انستغرام', icon: Instagram, color: 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' }
+    { name: 'حكمة مستقبلية', icon: Brain, color: 'bg-indigo-600' },
+    { name: 'تنبؤات فكاهية', icon: Sparkles, color: 'bg-purple-600' },
+    { name: 'استشارة مالية', icon: DollarSign, color: 'bg-emerald-600' },
+    { name: 'شرح بأسلوب طفل', icon: Baby, color: 'bg-yellow-600' },
+    { name: 'سيرة ذاتية', icon: FileCheck, color: 'bg-blue-600' },
+    { name: 'تفسير ديني', icon: BookOpenText, color: 'bg-teal-600' }
   ];
 
   const contentTypes = [
     { value: 'عام', label: 'محتوى عام' },
-    { value: 'تسويقي', label: 'محتوى تسويقي' },
-    { value: 'تحفيزي', label: 'محتوى تحفيزي' },
-    { value: 'تعليمي', label: 'محتوى تعليمي' },
-    { value: 'ترفيهي', label: 'محتوى ترفيهي' },
-    { value: 'إخباري', label: 'محتوى إخباري' },
-    { value: 'اقتباسات', label: 'اقتباسات وحكم' },
-    { value: 'قصصي', label: 'محتوى قصصي' }
+    { value: 'حكمة من المستقبل', label: 'حكمة من المستقبل' },
+    { value: 'تنبؤ غير منطقي', label: 'تنبؤ غير منطقي' },
+    { value: 'استشارة مالية', label: 'استشارة مالية' },
+    { value: 'تفسير مبسط', label: 'تفسير مبسط' },
+    { value: 'سيرة ذاتية', label: 'سيرة ذاتية' },
+    { value: 'تفسير حديث', label: 'تفسير حديث' },
+    { value: 'تفسير قرآن', label: 'تفسير قرآن' }
   ];
 
   const formatDate = (date: Date) => {
@@ -251,10 +256,10 @@ const AIAssistant = () => {
             <motion.div variants={slideUp}>
               <div className="flex items-center justify-center mb-4">
                 <Sparkles className="h-8 w-8 text-yellow-300 mr-2" />
-                <CardTitle className="text-3xl font-bold text-center">مساعد كتابة المحتوى الاجتماعي</CardTitle>
+                <CardTitle className="text-3xl font-bold text-center">المساعد الذكي المتعدد الوظائف</CardTitle>
               </div>
               <CardDescription className="text-gray-100 text-center text-lg mt-2">
-                ابتكر محتوى إبداعي لمنصات التواصل الاجتماعي بذكاء اصطناعي متقدم
+                مجموعة أدوات تفاعلية للتحليل، التنبؤ، الاستشارات المالية، والتفسير الديني
               </CardDescription>
             </motion.div>
             
@@ -289,7 +294,7 @@ const AIAssistant = () => {
                   variants={slideUp}
                 >
                   <div className="mb-6">
-                    <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">اختر منصة التواصل الاجتماعي:</h3>
+                    <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">اختر نوع المساعدة:</h3>
                     <div className="flex flex-wrap gap-2 justify-center mb-4">
                       {platforms.map((p) => {
                         const IconComponent = p.icon;
@@ -313,7 +318,7 @@ const AIAssistant = () => {
                                 </motion.button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>إنشاء محتوى مخصص لـ {p.name}</p>
+                                <p>{getTooltipForPlatform(p.name)}</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -342,11 +347,11 @@ const AIAssistant = () => {
                   </div>
 
                   <div className="bg-gray-50 p-5 rounded-lg border mb-6">
-                    <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">ماذا تريد أن أكتب لك؟</h3>
+                    <h3 className="text-lg font-medium text-gray-700 mb-3 text-right">ماذا تريد المساعدة به؟</h3>
                     <Textarea
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="أدخل وصفًا لما تريد... (مثال: اكتب لي تغريدة عن أهمية الذكاء الاصطناعي في التسويق)"
+                      placeholder={getPlaceholderForPlatform(platform)}
                       disabled={isLoading}
                       className="min-h-[150px] text-right"
                       dir="rtl"
@@ -408,11 +413,7 @@ const AIAssistant = () => {
                         <div className="flex items-center gap-2">
                           <h3 className="text-xl font-bold text-indigo-700">المحتوى المُنشَأ</h3>
                           {platform !== 'عام' && (
-                            <Badge className={`
-                              ${platform === 'تويتر' ? 'bg-[#1DA1F2]' : ''}
-                              ${platform === 'فيسبوك' ? 'bg-[#4267B2]' : ''}
-                              ${platform === 'انستغرام' ? 'bg-gradient-to-r from-[#405DE6] via-[#E1306C] to-[#FFDC80]' : ''}
-                            `}>
+                            <Badge className={getPlatformBadgeClass(platform)}>
                               {platform}
                             </Badge>
                           )}
@@ -599,6 +600,64 @@ const AIAssistant = () => {
       </motion.div>
     </AnimatePresence>
   );
+};
+
+// وظائف مساعدة للحصول على محتوى ديناميكي حسب المنصة
+const getPlaceholderForPlatform = (platform: string) => {
+  switch (platform) {
+    case 'حكمة مستقبلية':
+      return 'اكتب موضوعًا تريد حكمة حوله من المستقبل...';
+    case 'تنبؤات فكاهية':
+      return 'اكتب اسمك وعمرك للحصول على تنبؤات فكاهية لحياتك...';
+    case 'استشارة مالية':
+      return 'اكتب وضعك المالي الحالي وما تريد استشارة حوله...';
+    case 'شرح بأسلوب طفل':
+      return 'اكتب المفهوم المعقد الذي تريد تفسيره بأسلوب بسيط...';
+    case 'سيرة ذاتية':
+      return 'اكتب مؤهلاتك وخبراتك للحصول على سيرة ذاتية فخمة...';
+    case 'تفسير ديني':
+      return 'اكتب الحديث أو الآية التي تريد تفسيرها...';
+    default:
+      return 'اكتب طلبك هنا للحصول على مساعدة المساعد الذكي...';
+  }
+};
+
+const getTooltipForPlatform = (platform: string) => {
+  switch (platform) {
+    case 'حكمة مستقبلية':
+      return 'حكم يومية بأسلوب مستقبلي فريد';
+    case 'تنبؤات فكاهية':
+      return 'تنبؤات غير منطقية وفكاهية لحياتك';
+    case 'استشارة مالية':
+      return 'نصائح واستشارات مالية شخصية';
+    case 'شرح بأسلوب طفل':
+      return 'شرح المفاهيم المعقدة بطريقة بسيطة';
+    case 'سيرة ذاتية':
+      return 'إنشاء سيرة ذاتية متقنة ومهنية';
+    case 'تفسير ديني':
+      return 'تفسير الأحاديث والآيات وفق المنهج السلفي';
+    default:
+      return 'مساعدة عامة في مختلف المجالات';
+  }
+};
+
+const getPlatformBadgeClass = (platform: string) => {
+  switch (platform) {
+    case 'حكمة مستقبلية':
+      return 'bg-indigo-600';
+    case 'تنبؤات فكاهية':
+      return 'bg-purple-600';
+    case 'استشارة مالية':
+      return 'bg-emerald-600';
+    case 'شرح بأسلوب طفل':
+      return 'bg-yellow-600';
+    case 'سيرة ذاتية':
+      return 'bg-blue-600';
+    case 'تفسير ديني':
+      return 'bg-teal-600';
+    default:
+      return 'bg-gray-600';
+  }
 };
 
 export default AIAssistant;
