@@ -102,6 +102,8 @@ const ResultDisplay = ({ content, contentStats, platform, onNewContent, isPDF = 
         return 'bg-blue-600 dark:bg-blue-500';
       case 'تفسير ديني':
         return 'bg-teal-600 dark:bg-teal-500';
+      case 'بحث على الإنترنت':
+        return 'bg-cyan-600 dark:bg-cyan-500';
       default:
         return 'bg-gray-600 dark:bg-gray-500';
     }
