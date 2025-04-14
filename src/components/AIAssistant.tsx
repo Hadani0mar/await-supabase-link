@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -376,14 +377,8 @@ const AIAssistant = () => {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <motion.div
-                          initial={{ scale: 1 }}
-                          animate={{ scale: [1, 1.15, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        >
-                          <Sparkles className="h-5 w-5" />
-                          <span>إنشاء المحتوى</span>
-                        </div>
+                        <Sparkles className="h-5 w-5" />
+                        <span>إنشاء المحتوى</span>
                       </div>
                     )}
                     <motion.div 
