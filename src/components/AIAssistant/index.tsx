@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calculator, BookOpen, History as HistoryIcon, MessageSquarePlus, Loader2 } from 'lucide-react';
+import { Calculator, BookOpen, History as HistoryIcon, MessageSquarePlus as MessageSquarePlusIcon, Loader2 as Loader2Icon } from 'lucide-react';
 import { Message, ContentStats } from './types';
 import { PLATFORMS, CONTENT_TYPES, getPlaceholderForPlatform } from './constants';
 import PlatformSelector from './PlatformSelector';
@@ -107,9 +106,16 @@ const AIAssistant = () => {
       }
 
       const generationTime = ((Date.now() - startTime) / 1000).toFixed(1);
-      toast.success(`تم إنشاء المحتوى بنجاح خلال ${generationTime} ثانية`);
-
-      setGeneratedContent(data.response || 'عذراً، لم أتمكن من معالجة طلبك. يرجى المحاولة مرة أخرى.');
+      
+      if (data.error) {
+        console.error('API Error:', data.error);
+        toast.error('حدث خطأ أثناء معالجة الطلب: ' + data.error);
+        setGeneratedContent(data.response || 'عذراً، حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى.');
+      } else {
+        toast.success(`تم إنشاء المحتوى بنجاح خلال ${generationTime} ثانية`);
+        setGeneratedContent(data.response || 'عذراً، لم أتمكن من معالجة طلبك. يرجى المحاولة مرة أخرى.');
+      }
+      
       setContentStats(data.stats || null);
       
       // Add to history
@@ -228,7 +234,7 @@ const AIAssistant = () => {
             >
               <TabsList className="grid grid-cols-3 bg-white/20 dark:bg-black/20 mb-2 mx-auto w-fit">
                 <TabsTrigger value="create" className="text-white data-[state=active]:bg-white data-[state=active]:text-indigo-600 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-indigo-300">
-                  <MessageSquarePlus className="h-4 w-4 mr-1" />
+                  <MessageSquarePlusIcon className="h-4 w-4 mr-1" />
                   <span>إنشاء محتوى</span>
                 </TabsTrigger>
                 <TabsTrigger value="result" className="text-white data-[state=active]:bg-white data-[state=active]:text-indigo-600 dark:data-[state=active]:bg-gray-800 dark:data-[state=active]:text-indigo-300">

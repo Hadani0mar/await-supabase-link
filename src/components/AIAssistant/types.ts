@@ -25,3 +25,9 @@ export interface ContentType {
   label: string;
   instructions: string;
 }
+
+export interface ErrorResponse {
+  error: string;
+  response?: string;
+  stats?: ContentStats;
+}

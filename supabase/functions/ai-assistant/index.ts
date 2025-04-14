@@ -24,14 +24,34 @@ serve(async (req) => {
   try {
     // Get environment vars
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY') || '';
-    if (!openaiApiKey) {
-      throw new Error('OPENAI_API_KEY is required');
-    }
     
     const { prompt, platform, contentType, instructions, useInternet } = await req.json() as RequestBody;
     
     if (!prompt) {
       throw new Error('Prompt is required');
+    }
+
+    // Check if OpenAI API key is available
+    if (!openaiApiKey) {
+      console.error('OPENAI_API_KEY is not set in environment variables');
+      return new Response(
+        JSON.stringify({ 
+          error: 'API key is not configured',
+          response: 'عذراً، لم يتم تكوين مفتاح API بشكل صحيح. يرجى التواصل مع مسؤول النظام.',
+          stats: {
+            characters: 0,
+            words: 0,
+            estimatedReadTime: '0 دقيقة للقراءة'
+          }
+        }),
+        { 
+          status: 200,  // Sending 200 instead of error to handle gracefully on frontend
+          headers: { 
+            "Content-Type": "application/json",
+            ...corsHeaders
+          } 
+        }
+      );
     }
 
     // Calculate word count for the prompt
@@ -306,9 +326,17 @@ serve(async (req) => {
     console.error('Error processing request:', error);
     
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        response: 'عذراً، حدث خطأ أثناء محاولة معالجة طلبك. يرجى المحاولة مرة أخرى.',
+        stats: {
+          characters: 0,
+          words: 0,
+          estimatedReadTime: '0 دقيقة للقراءة'
+        }
+      }),
       { 
-        status: 500, 
+        status: 200, // Returning 200 to handle error gracefully on frontend
         headers: { 
           "Content-Type": "application/json",
           ...corsHeaders
