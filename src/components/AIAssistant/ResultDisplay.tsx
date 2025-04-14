@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
-import { Clock, Copy, Twitter, Facebook, Instagram, RotateCw, ThumbsUp, FileText, Download } from 'lucide-react';
+import { Clock, Copy, Twitter, Facebook, Instagram, RotateCw, ThumbsUp, FileText, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ContentStats } from './types';
 import html2pdf from 'html2pdf.js';

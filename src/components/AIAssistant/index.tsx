@@ -1,13 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Calculator, BookOpen, History as HistoryIcon } from 'lucide-react';
+import { Calculator, BookOpen, History as HistoryIcon, MessageSquarePlus, Loader2 } from 'lucide-react';
 import { Message, ContentStats } from './types';
 import { PLATFORMS, CONTENT_TYPES, getPlaceholderForPlatform } from './constants';
 import PlatformSelector from './PlatformSelector';
@@ -65,8 +65,9 @@ const AIAssistant = () => {
     }
   }, [history]);
 
-  const generateContent = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Fix the type mismatch in generateContent
+  const generateContent = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     
     if (!prompt.trim()) return;
     
