@@ -1,8 +1,11 @@
 
 import NumericSystemAnalyzer from "@/components/NumericSystemAnalyzer";
+import AIAssistant from "@/components/AIAssistant";
 import { motion } from 'framer-motion';
-import { Calculator, ChevronDown, Cpu, CheckCircle2 } from "lucide-react";
+import { Calculator, ChevronDown, Cpu, CheckCircle2, Brain } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
@@ -15,7 +18,15 @@ const Index = () => {
               محلل الأنظمة العددية
             </h1>
           </div>
-          <p className="text-sm font-medium text-blue-300">تحليل متقدم للأنظمة الرقمية</p>
+          <div className="flex items-center gap-4">
+            <Link to="/assistant">
+              <Button variant="outline" className="flex items-center gap-2 text-blue-300 border-blue-400 hover:bg-blue-900/20">
+                <Brain className="h-5 w-5" />
+                <span>المساعد الذكي</span>
+              </Button>
+            </Link>
+            <p className="text-sm font-medium text-blue-300">تحليل متقدم للأنظمة الرقمية</p>
+          </div>
         </div>
       </header>
       
@@ -69,6 +80,23 @@ const Index = () => {
               <p className="text-gray-400 text-sm">واجهة بسيطة تمكنك من تحويل الأرقام بين الأنظمة بسهولة</p>
             </CardContent>
           </Card>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9, duration: 0.6 }}
+          className="mt-16 text-center"
+        >
+          <Link to="/assistant">
+            <Button size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-lg py-6 px-8">
+              <Brain className="mr-2 h-5 w-5" />
+              استخدم المساعد الذكي المتعدد الوظائف
+            </Button>
+          </Link>
+          <p className="mt-4 text-gray-300 max-w-2xl mx-auto">
+            المساعد الذكي يوفر مجموعة من الأدوات التفاعلية التي تساعد المستخدمين في مجالات متنوعة. يقدم مساعدات فريدة تشمل التحليل الشخصي، التنبؤات المستقبلية، الاستشارات المالية، وتحويل الأفكار إلى مشاريع عملية، بالإضافة إلى توفير تفسيرات دينية.
+          </p>
         </motion.div>
       </main>
       

@@ -1,7 +1,6 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -19,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Link } from 'react-router-dom';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -224,8 +224,12 @@ const AIAssistant = () => {
         initial="hidden"
         animate="visible"
         variants={fadeIn}
-        className="flex flex-col h-full max-w-4xl mx-auto"
+        className="flex flex-col h-full max-w-4xl mx-auto p-4"
       >
+        <Link to="/" className="mb-4 flex items-center gap-2 text-indigo-500 hover:text-indigo-600 transition-colors self-start">
+          <Calculator className="h-5 w-5" />
+          <span>العودة إلى الرئيسية</span>
+        </Link>
         <Card className="shadow-xl border-2 overflow-hidden bg-white relative">
           <motion.div 
             className="absolute -right-8 -top-8 w-16 h-16 bg-indigo-200 rounded-full blur-xl"
@@ -259,7 +263,8 @@ const AIAssistant = () => {
                 <CardTitle className="text-3xl font-bold text-center">المساعد الذكي المتعدد الوظائف</CardTitle>
               </div>
               <CardDescription className="text-gray-100 text-center text-lg mt-2">
-                مجموعة أدوات تفاعلية للتحليل، التنبؤ، الاستشارات المالية، والتفسير الديني
+                المساعد الذكي يوفر مجموعة من الأدوات التفاعلية التي تساعد المستخدمين في مجالات متنوعة. 
+                يقدم مساعدات فريدة تشمل التحليل الشخصي، التنبؤات المستقبلية، الاستشارات المالية، وتحويل الأفكار إلى مشاريع عملية، بالإضافة إلى توفير تفسيرات دينية.
               </CardDescription>
             </motion.div>
             
@@ -377,8 +382,8 @@ const AIAssistant = () => {
                           transition={{ duration: 2, repeat: Infinity }}
                         >
                           <Sparkles className="h-5 w-5" />
-                        </motion.div>
-                        <span>إنشاء المحتوى</span>
+                          <span>إنشاء المحتوى</span>
+                        </div>
                       </div>
                     )}
                     <motion.div 
