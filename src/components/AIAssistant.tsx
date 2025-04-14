@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +12,8 @@ import {
   Facebook, Twitter, Instagram, Copy, Share2, Send, MessageSquarePlus,
   Loader2, BookOpenCheck, Sparkles, Clock, AlignJustify, History,
   ChevronDown, Settings, Save, Heart, RotateCw, BookOpen, ThumbsUp,
-  BookHeart, Brain, Lightbulb, DollarSign, Baby, FileCheck, ScrollText, BookOpenText
+  BookHeart, Brain, Lightbulb, DollarSign, Baby, FileCheck, ScrollText, BookOpenText,
+  Calculator
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
